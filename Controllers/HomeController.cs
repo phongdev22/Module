@@ -77,8 +77,8 @@ namespace Module.Controllers
 			_context.Accounts.Add(new Account()
 			{
 				Id = Guid.NewGuid().ToString(),
-				IdentityCode = IdentityCode,
-				Username = Username,
+				IdentityCode = IdentityCode.Trim(),
+				Username = Username.Trim(),
 				Password = Password
 			});
 			_context.SaveChanges();
