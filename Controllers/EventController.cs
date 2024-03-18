@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Module.Utils;
 using System.Text.RegularExpressions;
 using NuGet.Protocol;
+using Microsoft.CodeAnalysis.Scripting;
 
 namespace Module.Controllers
 {
@@ -64,6 +65,7 @@ namespace Module.Controllers
                     var receiverNumber = eventCall.to.number;
                     var eventCause = eventCall.endCallCause;
                     var account = await _db.Accounts.FirstOrDefaultAsync(acc => acc.IdentityCode == idenCode);
+                    
                     var configuration = _db.EventConfigurations.FirstOrDefault(ev => ev.IdentityCode == idenCode && eventCause == ev.EventName);
 
                     if (account == null)
@@ -72,23 +74,42 @@ namespace Module.Controllers
                     if (configuration == null)
                         throw new Exception("Configuration is not defined");
 
-                    if (!IsPhoneNumber(receiverNumber))
-                        throw new Exception("Phone number is wrong format");
+                    //if (!IsPhoneNumber(receiverNumber))
+                    //    throw new Exception("Phone number is wrong format");
 
                     var sender = new RequestSender();
+
                     Dictionary<string, dynamic> body = new Dictionary<string, dynamic>();
-                    string script = configuration.Script;
+
+					var lst_params = configuration.ListParams.Split(",");
+					var flatten = Converter.ConvertToDictionary(eventCall);
+
+                    // get params from
+					foreach (var pr in lst_params)
+					{
+						var find_str = @$"[{pr.Trim()}]";
+						if (flatten.ContainsKey(pr))
+						{
+							string value = flatten[pr];
+							body.Add(pr,value);
+						}
+					}
+
+					/*
+                     * string script = configuration.Script;
 
                     if (configuration.ListParams == "") body.Add("script", script);
                     else
                     {
                         var lst_params = configuration.ListParams.Split(",");
+
+						// Data object will be flatten. Enhanced (callAPI to get data, after that flattern and filtering field respectively) 
+						// 
                         var flatten = Converter.ConvertToDictionary(eventCall);
 
                         foreach (var pr in lst_params)
                         {
                             var find_str = @$"[{pr.Trim()}]";
-
                             if (flatten.ContainsKey(pr))
                             {
                                 string value = flatten[pr];
@@ -98,8 +119,10 @@ namespace Module.Controllers
 
                         body.Add("script", script);
                     }
+                    */
 
-                    var dataOmni = new
+					// call API 
+					var dataOmni = new
                     {
                         username = account.Username,
                         password = account.Password,
@@ -122,15 +145,17 @@ namespace Module.Controllers
                     dynamic responseObject = Newtonsoft.Json.JsonConvert.DeserializeObject(resp);
 
                     string response_status = responseObject?.status ?? "";
-                    string response_code = responseObject?.status ?? "";
+                    string response_code = responseObject?.code ?? "";
 
                     messageLog.Status = response_status;
-                    messageLog.StatusMessage = response_code;
+					messageLog.StatusMessage = response_code;
 
-                    if (response_status == "1")
-                        messageLog.StatusMessage = responseObject?.idOmniMess;
+					//if (response_status == "1")
+					//    messageLog.StatusMessage = script;
+					//else messageLog.StatusMessage = response_code;
 
-                    _db.ActivityHistory.Add(messageLog);
+					// Save data
+					_db.ActivityHistory.Add(messageLog);
                     break;
                 default:
                     break;

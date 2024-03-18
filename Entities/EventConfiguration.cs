@@ -10,7 +10,7 @@ namespace Module.Entities
         public required string EventName { get; set; }
         public required string TemplateCode { get; set; }
         public required string RouteRule { get; set; }
-        public required string Script { get; set; } = "";
+        //public required string Script { get; set; } = "";
         public required string ListParams { get; set; } = "";
     }
 }
