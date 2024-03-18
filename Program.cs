@@ -20,7 +20,6 @@ namespace Module
 				options.UseLoggerFactory(LoggerFactory.Create(builder => { }));
 			});
 
-
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("AllowAll",
@@ -30,21 +29,24 @@ namespace Module
 						   .AllowAnyMethod()
 						   .AllowAnyHeader();
 				});
-
 			});
+
+			builder.Services.AddControllersWithViews();
 
 			var app = builder.Build();
 
-			// Configure the HTTP request pipeline.
-			//if (app.Environment.IsDevelopment()){}
-
+			app.UseStaticFiles();
 			app.UseHttpsRedirection();
-
 
 			app.MapControllers();
 
 			app.UseRouting();
-			app.MapGet("/", () => new { Message = "Hello API!" });
+			// app.MapGet("/", () => new { Message = "Hello API!" });
+
+			app.MapControllerRoute(
+					name: "default",
+					pattern: "{controller=Home}/{action=Index}/{id?}"
+			);
 
 			app.Run();
 		}

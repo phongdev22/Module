@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Module.Entities;
 
@@ -11,9 +12,11 @@ using Module.Entities;
 namespace Module.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240318105332_UpdateTable_4")]
+    partial class UpdateTable_4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +44,7 @@ namespace Module.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("Module.Entities.ActivityHistory", b =>
@@ -70,7 +73,7 @@ namespace Module.Migrations
 
                     b.HasKey("CallId");
 
-                    b.ToTable("ActivityHistory", (string)null);
+                    b.ToTable("ActivityHistory");
                 });
 
             modelBuilder.Entity("Module.Entities.Call", b =>
@@ -95,7 +98,7 @@ namespace Module.Migrations
 
                     b.HasKey("CallId");
 
-                    b.ToTable("Calls", (string)null);
+                    b.ToTable("Calls");
                 });
 
             modelBuilder.Entity("Module.Entities.CallDetail", b =>
@@ -123,7 +126,7 @@ namespace Module.Migrations
 
                     b.HasKey("CallId");
 
-                    b.ToTable("CallDetails", (string)null);
+                    b.ToTable("CallDetails");
                 });
 
             modelBuilder.Entity("Module.Entities.EventConfiguration", b =>
@@ -157,7 +160,7 @@ namespace Module.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventConfigurations", (string)null);
+                    b.ToTable("EventConfigurations");
                 });
 #pragma warning restore 612, 618
         }

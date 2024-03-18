@@ -65,8 +65,8 @@ namespace Module.Controllers
                     var receiverNumber = eventCall.to.number;
                     var eventCause = eventCall.endCallCause;
                     var account = await _db.Accounts.FirstOrDefaultAsync(acc => acc.IdentityCode == idenCode);
-                    
-                    var configuration = _db.EventConfigurations.FirstOrDefault(ev => ev.IdentityCode == idenCode && eventCause == ev.EventName);
+
+                    var configuration = _db.EventConfigurations.FirstOrDefault(ev => ev.IdentityCode == idenCode && ev.EventName.Equals(eventCause, StringComparison.OrdinalIgnoreCase));
 
                     if (account == null)
                         throw new Exception("Cannot find account to send");
@@ -74,28 +74,32 @@ namespace Module.Controllers
                     if (configuration == null)
                         throw new Exception("Configuration is not defined");
 
-                    //if (!IsPhoneNumber(receiverNumber))
-                    //    throw new Exception("Phone number is wrong format");
-
                     var sender = new RequestSender();
 
                     Dictionary<string, dynamic> body = new Dictionary<string, dynamic>();
 
-					var lst_params = configuration.ListParams.Split(",");
-					var flatten = Converter.ConvertToDictionary(eventCall);
 
-                    // get params from
-					foreach (var pr in lst_params)
-					{
-						var find_str = @$"[{pr.Trim()}]";
-						if (flatten.ContainsKey(pr))
-						{
-							string value = flatten[pr];
-							body.Add(pr,value);
-						}
-					}
+                    if (configuration.ListParams == "")
+                    {
+                        body.Add("default", configuration.DefaultValue);
+                    }
+                    else
+                    {
+                        var lst_params = configuration.ListParams.Split(",");
+                        var flatten = Converter.ConvertToDictionary(eventCall);
 
-					/*
+                        // get params from
+                        foreach (var pr in lst_params)
+                        {
+                            if (flatten.ContainsKey(pr.Trim()))
+                            {
+                                string value = flatten[pr];
+                                body.Add(pr, value);
+                            }
+                        }
+                    }
+
+                    /*
                      * string script = configuration.Script;
 
                     if (configuration.ListParams == "") body.Add("script", script);
@@ -121,8 +125,8 @@ namespace Module.Controllers
                     }
                     */
 
-					// call API 
-					var dataOmni = new
+                    // call API 
+                    var dataOmni = new
                     {
                         username = account.Username,
                         password = account.Password,
@@ -131,11 +135,12 @@ namespace Module.Controllers
                         templatecode = configuration.TemplateCode,
                         list_param = body
                     };
-                    
+
                     var messageLog = new ActivityHistory()
                     {
                         CallId = eventCall.call_id,
                         Recipient = eventCall.to.alias,
+                        Number = receiverNumber,
                         Status = "",
                         StatusMessage = "",
                     };
@@ -148,14 +153,14 @@ namespace Module.Controllers
                     string response_code = responseObject?.code ?? "";
 
                     messageLog.Status = response_status;
-					messageLog.StatusMessage = response_code;
+                    messageLog.StatusMessage = response_code;
 
-					//if (response_status == "1")
-					//    messageLog.StatusMessage = script;
-					//else messageLog.StatusMessage = response_code;
+                    //if (response_status == "1")
+                    //    messageLog.StatusMessage = script;
+                    //else messageLog.StatusMessage = response_code;
 
-					// Save data
-					_db.ActivityHistory.Add(messageLog);
+                    // Save data
+                    _db.ActivityHistory.Add(messageLog);
                     break;
                 default:
                     break;

@@ -7,6 +7,7 @@ namespace Module.Entities
 		[Key]
 		public required string CallId { get; set; }
 		public required string Recipient { get; set; }
+		public required string Number { get; set; }
 		public required string Status { get; set; }
 		public required string StatusMessage { get; set; }
 		public DateTime Times { get; set; } = DateTime.UtcNow;
