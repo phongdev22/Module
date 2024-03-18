@@ -1,6 +1,6 @@
 event log:
 
-Identity_Code: prefix ID của enterprise theo mỗi user account dùng trong call service.   <prefix ID>_<tên account>
+Identity_Code: prefix ID của enterprise theo mỗi user account dùng trong stringee call.   <prefix ID>_<tên account>
 EventName: tên sự kiện ứng với mỗi params sẽ gọi lại cho omni
 ListParams: các tham số và value muốn lấy lúc thực hiện cuộc gọi. Ngăn cách bởi dấy phẩy ví dụ to_number(sđt người nhận cuộc gọi), to_alias(tên người gọi)
 
